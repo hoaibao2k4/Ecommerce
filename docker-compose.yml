@@ -1,0 +1,17 @@
+services:
+  db:
+  # config mysql container
+    image: mysql:8.0
+    container_name: ecommerce_container
+    environment:
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${DB_PORT}:3306"
+    # stored in container
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./db-init:/docker-entrypoint-initdb.d
+
+volumes:
+  db_data:
