@@ -1,5 +1,6 @@
 package com.sparkminds.ecommerce.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -34,6 +35,9 @@ public class SecurityConfig {
     private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
+    @Value("${app.cors.allowed-origins:http://localhost:3000,http://localhost:5173}")
+    private java.util.List<String> allowedOrigins;
+
     @Bean
     // config filter chain
     public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
@@ -57,10 +61,23 @@ public class SecurityConfig {
             .authenticationEntryPoint(customAuthenticationEntryPoint)
             .accessDeniedHandler(customAccessDeniedHandler)
         )
+        // CORS configuration
+        .cors(cors -> cors.configurationSource(request -> {
+            var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
+            String origin = request.getHeader("Origin");
+            if (origin != null && allowedOrigins.contains(origin)) {
+                corsConfiguration.setAllowedOrigins(java.util.List.of(origin));
+            }
+            corsConfiguration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+            corsConfiguration.setAllowedHeaders(java.util.List.of("*"));
+            corsConfiguration.setAllowCredentials(true); // REQUIRED for cookies
+            return corsConfiguration;
+        }))
         // disable csrf (cross site request forgery)
         .csrf(csrf -> csrf.disable());
         return http.build();
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

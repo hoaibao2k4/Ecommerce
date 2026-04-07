@@ -17,6 +17,9 @@ import com.sparkminds.ecommerce.repository.UserRepository;
 import com.sparkminds.ecommerce.security.CustomUserDetails;
 import com.sparkminds.ecommerce.security.JwtService;
 
+import com.sparkminds.ecommerce.service.RedisService;
+import org.springframework.beans.factory.annotation.Value;
+import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -27,6 +30,10 @@ public class AuthenticationServiceImpl {
         private final PasswordEncoder passwordEncoder;
         private final JwtService jwtService;
         private final AuthenticationManager authenticationManager;
+        private final RedisService redisService;
+        
+        @Value("${security.jwt.refresh-expiration}")
+        private long jwtRefreshExpiration;
 
         public AuthenticationResponse register(RegisterRequest registerRequest) {
                 // create user
@@ -41,11 +48,19 @@ public class AuthenticationServiceImpl {
                                 .build();
                 userRepository.save(user);
 
+                CustomUserDetails userDetails = new CustomUserDetails(user);
+                String accessToken = jwtService.generateAccessToken(userDetails);
+                String refreshToken = jwtService.generateRefreshToken(userDetails);
+                
+                redisService.save(refreshToken, user.getUsername(), jwtRefreshExpiration, TimeUnit.MILLISECONDS);
+
                 // Convert inside CustomUserDetails for Jwt generation
                 return AuthenticationResponse.builder()
                                 .username(user.getUsername())
                                 .email(user.getEmail())
                                 .role(user.getRole())
+                                .accessToken(accessToken)
+                                .refreshToken(refreshToken)
                                 .build();
         }
 
@@ -70,6 +85,9 @@ public class AuthenticationServiceImpl {
                 // refresh is not stored in db (just create)
                 String refreshToken = jwtService.generateRefreshToken(userDetails);
 
+                // Save to Redis instead of DB
+                redisService.save(refreshToken, user.getUsername(), jwtRefreshExpiration, TimeUnit.MILLISECONDS);
+
                 return AuthenticationResponse.builder()
                                 .username(user.getUsername())
                                 .email(user.getEmail())
@@ -80,6 +98,12 @@ public class AuthenticationServiceImpl {
         }
 
         public AuthenticationResponse refreshToken(String refreshToken) {
+                // Determine if present in Redis
+                String storedUsername = redisService.get(refreshToken);
+                if (storedUsername == null) {
+                        throw new BadCredentialsException("Refresh token was not found in Redis or is expired");
+                }
+
                 String username = jwtService.extractUsername(refreshToken);
                 User user = userRepository.findByUsername(username)
                                 .orElseThrow(() -> new BadCredentialsException("Invalid or expired refresh token"));
@@ -95,5 +119,11 @@ public class AuthenticationServiceImpl {
                                 .accessToken(newAccessToken)
                                 .refreshToken(refreshToken)
                                 .build();
+        }
+
+        public void logout(String refreshToken) {
+                if (refreshToken != null) {
+                        redisService.delete(refreshToken);
+                }
         }
 }
