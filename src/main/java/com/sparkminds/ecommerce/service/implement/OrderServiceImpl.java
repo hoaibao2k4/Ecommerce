@@ -1,7 +1,6 @@
 package com.sparkminds.ecommerce.service.implement;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -134,7 +133,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public void updateOrderStatus(Long id, OrderStatus orderStatus) {
         // get own order
-        Order order = getValidationOrder(id); 
+        Order order = getValidationOrder(id);
         User user = iUser.getCurrentUser();
 
         if (user.getRole() != Role.ADMIN) {

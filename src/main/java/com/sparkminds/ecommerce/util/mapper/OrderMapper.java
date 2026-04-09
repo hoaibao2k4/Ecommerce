@@ -23,6 +23,7 @@ public interface OrderMapper {
     List<OrderResponse> toOrderResponses(List<Order> order);
 
     @Mapping(source = "product.id", target = "productId")
+    @Mapping(source = "product.name", target = "productName")
     OrderItemResponse toOrderItemResponse(OrderItem orderItem);
 
     @Mapping(source = "size", target = "pageSize")
