@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -17,6 +18,7 @@ public class ProductResponse {
     private String description;
     private BigDecimal price;
     private Integer stockQuantity;
+    private LocalDateTime createdAt;
     private CategoryResponse category;
     private Boolean isActive;
 }

@@ -22,6 +22,18 @@ spring:
         deserialization:
             accept-float-as-int: false       # prevent float to int
 
+    #config redis
+    data:
+        redis:
+            host: ${REDIS_HOST:localhost}
+            port: ${REDIS_PORT:6379}
+            password: ${REDIS_PASSWORD:}
+            timeout: 60000ms
+            jedis:
+                pool:
+                    max-active: 8
+                    max-idle: 8
+                    min-idle: 0
 security:
     jwt:
         secret-key: ${JWT_SECRET}
