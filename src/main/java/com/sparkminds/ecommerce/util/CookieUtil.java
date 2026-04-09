@@ -1,8 +1,9 @@
 package com.sparkminds.ecommerce.util;
 
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Component
@@ -12,26 +13,29 @@ public class CookieUtil {
     public static final String REFRESH_TOKEN_NAME = "refreshToken";
     private static final int MAX_AGE = 7 * 24 * 60 * 60; // 7 days (in seconds)
 
-    // Create a new cookie with HttpOnly security and Lax SameSite policy
-
+    // Create a new cookie with HttpOnly security and cross-site support
     public void createCookie(HttpServletResponse response, String name, String value) {
-        // Standard way to set cookie using Cookie object
-        Cookie cookie = new Cookie(name, value);
-        cookie.setHttpOnly(true); // Prevent XSS
-        cookie.setSecure(false); // Set TRUE if running HTTPS (Production)
-        cookie.setPath("/");
-        cookie.setMaxAge(MAX_AGE);
+        ResponseCookie cookie = ResponseCookie.from(name, value)
+                .httpOnly(true) // Prevent XSS
+                .secure(true) // Required for SameSite=None
+                .path("/")
+                .maxAge(MAX_AGE)
+                .sameSite("None") // Allow cross-site or cross-origin requests
+                .build();
 
-        response.addCookie(cookie);
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 
     // Clears a cookie by setting Max-Age to 0
-
     public void clearCookie(HttpServletResponse response, String name) {
-        Cookie cookie = new Cookie(name, null);
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(0);
-        response.addCookie(cookie);
+        ResponseCookie cookie = ResponseCookie.from(name, "")
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(0)
+                .sameSite("None")
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
     }
 }
