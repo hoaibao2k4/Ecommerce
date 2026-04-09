@@ -2,6 +2,7 @@ package com.sparkminds.ecommerce.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,18 +44,26 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<AuthenticationResponse> refreshToken(@Valid @RequestBody RefreshTokenRequest request, HttpServletResponse response) {
-        AuthenticationResponse authResponse = authenticationService.refreshToken(request.getRefreshToken());
+    public ResponseEntity<AuthenticationResponse> refreshToken(
+            @CookieValue(name = CookieUtil.REFRESH_TOKEN_NAME) String refreshToken,
+            HttpServletResponse response) {
+        
+        AuthenticationResponse authResponse = authenticationService.refreshToken(refreshToken);
         cookieUtil.createCookie(response, CookieUtil.ACCESS_TOKEN_NAME, authResponse.getAccessToken());
-        cookieUtil.createCookie(response, CookieUtil.REFRESH_TOKEN_NAME, authResponse.getRefreshToken());
+        // cookieUtil.createCookie(response, CookieUtil.REFRESH_TOKEN_NAME, authResponse.getRefreshToken());
         return ResponseEntity.ok(authResponse);
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(@RequestBody(required = false) RefreshTokenRequest request, HttpServletResponse response) {
-        if (request != null && request.getRefreshToken() != null) {
-            authenticationService.logout(request.getRefreshToken());
+    public ResponseEntity<Void> logout(
+            @CookieValue(name = CookieUtil.REFRESH_TOKEN_NAME, required = false) String refreshToken,
+            HttpServletResponse response) {
+
+        // If the token exists, invalidate it in Redis/DB. If not, proceed to clear cookies.
+        if (refreshToken != null) {
+            authenticationService.logout(refreshToken);
         }
+        
         cookieUtil.clearCookie(response, CookieUtil.ACCESS_TOKEN_NAME);
         cookieUtil.clearCookie(response, CookieUtil.REFRESH_TOKEN_NAME);
         return ResponseEntity.noContent().build();
