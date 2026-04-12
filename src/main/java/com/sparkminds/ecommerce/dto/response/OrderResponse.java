@@ -16,6 +16,8 @@ import lombok.Setter;
 public class OrderResponse {
     private Long id;
     private Long userId;
+    private String username;
+    private String email;   
     private OrderStatus status;
     private BigDecimal totalAmount;
     private LocalDateTime createdAt;

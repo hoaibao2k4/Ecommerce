@@ -17,9 +17,13 @@ import com.sparkminds.ecommerce.entity.OrderItem;
 public interface OrderMapper {
 
     @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "user.username", target = "username")
+    @Mapping(source = "user.email", target = "email")
     OrderResponse toOrderResponse(Order order);
 
     @Mapping(source = "user.id", target = "userId")
+    @Mapping(source = "user.username", target = "username")
+    @Mapping(source = "user.email", target = "email")
     List<OrderResponse> toOrderResponses(List<Order> order);
 
     @Mapping(source = "product.id", target = "productId")
