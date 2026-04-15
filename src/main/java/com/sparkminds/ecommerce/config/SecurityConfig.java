@@ -1,5 +1,7 @@
 package com.sparkminds.ecommerce.config;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,6 +19,7 @@ import com.sparkminds.ecommerce.exception.CustomAuthenticationEntryPoint;
 import com.sparkminds.ecommerce.security.JwtAuthenticationFilter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -63,13 +66,13 @@ public class SecurityConfig {
         )
         // CORS configuration
         .cors(cors -> cors.configurationSource(request -> {
-            var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
+            var corsConfiguration = new CorsConfiguration();
             String origin = request.getHeader("Origin");
             if (origin != null && allowedOrigins.contains(origin)) {
-                corsConfiguration.setAllowedOrigins(java.util.List.of(origin));
+                corsConfiguration.setAllowedOrigins(List.of(origin));
             }
-            corsConfiguration.setAllowedMethods(java.util.List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-            corsConfiguration.setAllowedHeaders(java.util.List.of("*"));
+            corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+            corsConfiguration.setAllowedHeaders(List.of("*"));
             corsConfiguration.setAllowCredentials(true); // REQUIRED for cookies
             return corsConfiguration;
         }))
