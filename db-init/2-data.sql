@@ -7,17 +7,12 @@ INSERT INTO categories (name, description, is_active) VALUES
 ('Sports', 'Sportswear and fitness equipment', true);
 
 -- users
-INSERT INTO users (username, email, password, role) VALUES
--- admin123
-('admin', 'admin@example.com', '$2a$10$.o216JZL9QlohlU3t5lJd.JqpTV8kIO13PSf2GIb.0UzvqJWlLwRK', 'ADMIN'),
--- john123
-('john_doe', 'john@example.com', '$2a$10$vhhdxIcBoXcRF1heKnStRu9jh0XL1jw3l09Yb9m8xP5tzOvsl7uVm', 'USER'),
--- alice123
-('alice_nguyen', 'alice@example.com', '$2a$10$9y/MR3/wOq4HgyfiemneK.dnb0SCFAA4BDj1X8F8HciXA0Gn.quDi', 'USER'),
--- mike123
-('mike_tran', 'mike@example.com', '$2a$10$2CBFb8CHawozEUlsCAple.DlRe7zl7mP1dZUS4D/5SiEGAhDNrE0y', 'USER'),
--- sophia123
-('sophia_le', 'sophia@example.com', '$2a$10$dViYDT1OXqQVFDzKmC0EeuvwA2v0n84S7LAEzi7TwJBex1UN3vgGO', 'USER');
+INSERT INTO users (username, email, role) VALUES
+('admin', 'admin@example.com', 'ADMIN'),
+('john_doe', 'johndoe@example.com', 'USER'),
+('alice_nguyen', 'alice@example.com', 'USER'),
+('mike_tran', 'mike@example.com', 'USER'),
+('sophia_le', 'sophia@example.com', 'USER');
 
 -- products
 INSERT INTO products (name, description, price, stock_quantity, category_id, created_at, is_active) VALUES

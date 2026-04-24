@@ -134,7 +134,7 @@ public class GlobalExceptionHandler {
                                 .timestamp(LocalDateTime.now())
                                 .path(httpRequest.getRequestURI())
                                 .error(HttpStatus.UNAUTHORIZED.name())
-                                .message("Unauthorized access: Please log in to continue.")
+                                .message("Unauthorized access: Please log in to continue. Reason: " + ex.getMessage())
                                 .build();
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }

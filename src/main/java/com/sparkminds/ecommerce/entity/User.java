@@ -35,8 +35,8 @@ public class User extends BaseEntity implements Serializable {
     @Column(name = "username", unique = true)
     private String username;
 
-    @Column(name = "password")
-    private String password;
+    @Column(name = "keycloak_id", unique = true)
+    private String keycloakId;
 
     @Column(name = "email", unique = true)
     private String email;

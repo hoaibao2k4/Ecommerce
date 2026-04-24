@@ -109,6 +109,23 @@
 			<version>1.5.5.Final</version>
 			<scope>provided</scope>
 		</dependency>
+
+		<!-- Keycloak -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-client</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>io.phasetwo.keycloak</groupId>
+			<artifactId>keycloak-events</artifactId>
+			<version>0.52</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

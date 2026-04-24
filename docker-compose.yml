@@ -1,6 +1,6 @@
 services:
-  db:
-  # config mysql container
+  mysql:
+    # config mysql container
     image: mysql:8.0
     container_name: ecommerce_container
     environment:
@@ -12,12 +12,38 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./db-init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
   redis:
     image: redis:6.2-alpine
     container_name: redis-ecommerce
     restart: always
     ports:
       - "6379:6379"
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak_server
+    command: start-dev
+    environment:
+      KC_DB: mysql
+      KC_DB_URL: jdbc:mysql://mysql:3306/keycloak
+      KC_DB_USERNAME: root
+      KC_DB_PASSWORD: ${DB_PASSWORD}
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${DB_PASSWORD}
+      # P2-inc Webhook Plugin Config
+      WEBHOOK_URI: http://host.docker.internal:8080/api/v1/auth/webhook
+    ports:
+      - "8033:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - ./keycloak-events-0.52.jar:/opt/keycloak/providers/keycloak-events.jar
 
 volumes:
   db_data:

@@ -1,3 +1,5 @@
+CREATE DATABASE IF NOT EXISTS keycloak;
+
 create table categories (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100),
@@ -8,8 +10,8 @@ create table categories (
 create table users (
     id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     username varchar(100) UNIQUE,
+    keycloak_id varchar(255) UNIQUE,
     email varchar(100) UNIQUE,
-    password varchar(255),
     role ENUM('ADMIN', 'USER'),
     created_at timestamp DEFAULT CURRENT_TIMESTAMP
 );
