@@ -42,29 +42,22 @@ public class SecurityConfig {
     private java.util.List<String> allowedOrigins;
 
     @Bean
-    // config filter chain
     public SecurityFilterChain securityFilterChain (HttpSecurity http) throws Exception {
         http
-        // request permissions
-        .authorizeHttpRequests(auth -> auth
+            .authorizeHttpRequests(auth -> auth
             .requestMatchers("/auth/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/categories/**").permitAll()
             .requestMatchers(HttpMethod.GET, "/products/**").permitAll()
             .anyRequest().authenticated()
         )
-        // session server side
         .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        // authentication provider
         .authenticationProvider(authenticationProvider())
-        // add custom filter jwtAuthFilter (A first, B later)
         .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
 
-        // err handler: 401, 403
         .exceptionHandling(exception -> exception
             .authenticationEntryPoint(customAuthenticationEntryPoint)
             .accessDeniedHandler(customAccessDeniedHandler)
         )
-        // CORS configuration
         .cors(cors -> cors.configurationSource(request -> {
             var corsConfiguration = new CorsConfiguration();
             String origin = request.getHeader("Origin");
@@ -73,10 +66,9 @@ public class SecurityConfig {
             }
             corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
             corsConfiguration.setAllowedHeaders(List.of("*"));
-            corsConfiguration.setAllowCredentials(true); // REQUIRED for cookies
+            corsConfiguration.setAllowCredentials(true);
             return corsConfiguration;
         }))
-        // disable csrf (cross site request forgery)
         .csrf(csrf -> csrf.disable());
         return http.build();
     }

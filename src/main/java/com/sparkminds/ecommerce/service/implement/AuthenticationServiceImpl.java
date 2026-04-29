@@ -16,7 +16,7 @@ import com.sparkminds.ecommerce.exception.ConflictResourceException;
 import com.sparkminds.ecommerce.repository.UserRepository;
 import com.sparkminds.ecommerce.security.CustomUserDetails;
 import com.sparkminds.ecommerce.security.JwtService;
-
+import com.sparkminds.ecommerce.service.AuthenticationService;
 import com.sparkminds.ecommerce.service.RedisService;
 import org.springframework.beans.factory.annotation.Value;
 import java.util.concurrent.TimeUnit;
@@ -24,7 +24,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationServiceImpl {
+public class AuthenticationServiceImpl implements AuthenticationService {
 
         private final UserRepository userRepository;
         private final PasswordEncoder passwordEncoder;
@@ -51,10 +51,9 @@ public class AuthenticationServiceImpl {
                 CustomUserDetails userDetails = new CustomUserDetails(user);
                 String accessToken = jwtService.generateAccessToken(userDetails);
                 String refreshToken = jwtService.generateRefreshToken(userDetails);
-                
+
                 redisService.save(refreshToken, user.getUsername(), jwtRefreshExpiration, TimeUnit.MILLISECONDS);
 
-                // Convert inside CustomUserDetails for Jwt generation
                 return AuthenticationResponse.builder()
                                 .username(user.getUsername())
                                 .email(user.getEmail())
@@ -69,23 +68,13 @@ public class AuthenticationServiceImpl {
                                 new UsernamePasswordAuthenticationToken(
                                                 request.getUsername(),
                                                 request.getPassword()));
-
-                // authenManager flow:
-                // 1. create tmp obj UsernamePasswordAuthenticationToken
-                // 2. call provider (DaoProvider) to load user from db
-                // 3. compare password
-                // 4. return obj if correct
-
-                // If authen correctly
                 User user = userRepository.findByUsername(request.getUsername())
                                 .orElseThrow(() -> new BadCredentialsException("Invalid username or password"));
                 CustomUserDetails userDetails = new CustomUserDetails(user);
 
                 String accessToken = jwtService.generateAccessToken(userDetails);
-                // refresh is not stored in db (just create)
                 String refreshToken = jwtService.generateRefreshToken(userDetails);
 
-                // Save to Redis instead of DB
                 redisService.save(refreshToken, user.getUsername(), jwtRefreshExpiration, TimeUnit.MILLISECONDS);
 
                 return AuthenticationResponse.builder()
@@ -98,7 +87,7 @@ public class AuthenticationServiceImpl {
         }
 
         public AuthenticationResponse refreshToken(String refreshToken) {
-                // Determine if present in Redis
+                // determine if present in Redis
                 String storedUsername = redisService.get(refreshToken);
                 if (storedUsername == null) {
                         throw new BadCredentialsException("Refresh token was not found in Redis or is expired");

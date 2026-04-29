@@ -15,6 +15,8 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import org.springframework.web.servlet.HandlerExceptionResolver;
+
 import com.sparkminds.ecommerce.util.CookieUtil;
 
 import java.io.IOException;
@@ -25,6 +27,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+    private final HandlerExceptionResolver handlerExceptionResolver;
 
     @Override
     protected void doFilterInternal(
@@ -44,8 +47,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             userEmail = jwtService.extractUsername(jwt);
         } catch (Exception e) {
-            // (1)
-            filterChain.doFilter(request, response);
+            // throw to global handler exception
+            handlerExceptionResolver.resolveException(request, response, null, e);
             return;
         }
         

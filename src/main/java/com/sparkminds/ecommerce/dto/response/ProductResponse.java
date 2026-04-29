@@ -20,5 +20,4 @@ public class ProductResponse {
     private Integer stockQuantity;
     private LocalDateTime createdAt;
     private CategoryResponse category;
-    private Boolean isActive;
 }

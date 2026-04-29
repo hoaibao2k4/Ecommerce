@@ -3,9 +3,9 @@ spring:
         import: optional:file:.env[.properties]
     # config mysql
     datasource:
-        url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:ecommerce}
-        username: ${DB_USERNAME:root}
-        password: ${DB_PASSWORD:password}
+        url: jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME}
+        username: ${DB_USERNAME}
+        password: ${DB_PASSWORD}
         driver-class-name: com.mysql.cj.jdbc.Driver
     jpa:
         hibernate:
@@ -25,9 +25,9 @@ spring:
     #config redis
     data:
         redis:
-            host: ${REDIS_HOST:localhost}
-            port: ${REDIS_PORT:6379}
-            password: ${REDIS_PASSWORD:}
+            host: ${REDIS_HOST}
+            port: ${REDIS_PORT}
+            password: ${REDIS_PASSWORD}
             timeout: 60000ms
             jedis:
                 pool:
@@ -41,9 +41,9 @@ security:
         refresh-expiration: ${JWT_REFRESH_EXPIRATION}
 
 server:
-    port: ${SERVER_PORT:8080}
+    port: ${SERVER_PORT}
     servlet:
-        context-path: ${SERVER_CONTEXT_PATH:/api/v1}
+        context-path: ${SERVER_CONTEXT_PATH}
 
     error:
       include-stacktrace: never

@@ -9,10 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.sparkminds.ecommerce.dto.request.LoginRequest;
-import com.sparkminds.ecommerce.dto.request.RefreshTokenRequest;
 import com.sparkminds.ecommerce.dto.request.RegisterRequest;
 import com.sparkminds.ecommerce.dto.response.AuthenticationResponse;
-import com.sparkminds.ecommerce.service.implement.AuthenticationServiceImpl;
+import com.sparkminds.ecommerce.service.AuthenticationService;
 import com.sparkminds.ecommerce.util.CookieUtil;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -24,22 +23,34 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthenticationServiceImpl authenticationService;
+    private final AuthenticationService authenticationService;
     private final CookieUtil cookieUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponse> register(@Valid @RequestBody RegisterRequest request, HttpServletResponse response) {
+    public ResponseEntity<AuthenticationResponse> register(@Valid @RequestBody RegisterRequest request,
+            HttpServletResponse response) {
         AuthenticationResponse authResponse = authenticationService.register(request);
         cookieUtil.createCookie(response, CookieUtil.ACCESS_TOKEN_NAME, authResponse.getAccessToken());
         cookieUtil.createCookie(response, CookieUtil.REFRESH_TOKEN_NAME, authResponse.getRefreshToken());
+        
+        // Clear tokens so they are not included in the response body (Jackson non_null)
+        authResponse.setAccessToken(null);
+        authResponse.setRefreshToken(null);
+        
         return ResponseEntity.status(HttpStatus.CREATED).body(authResponse);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthenticationResponse> login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
+    public ResponseEntity<AuthenticationResponse> login(@Valid @RequestBody LoginRequest request,
+            HttpServletResponse response) {
         AuthenticationResponse authResponse = authenticationService.login(request);
         cookieUtil.createCookie(response, CookieUtil.ACCESS_TOKEN_NAME, authResponse.getAccessToken());
         cookieUtil.createCookie(response, CookieUtil.REFRESH_TOKEN_NAME, authResponse.getRefreshToken());
+        
+        // Clear tokens so they are not included in the response body (Jackson non_null)
+        authResponse.setAccessToken(null);
+        authResponse.setRefreshToken(null);
+        
         return ResponseEntity.ok(authResponse);
     }
 
@@ -47,10 +58,14 @@ public class AuthController {
     public ResponseEntity<AuthenticationResponse> refreshToken(
             @CookieValue(name = CookieUtil.REFRESH_TOKEN_NAME) String refreshToken,
             HttpServletResponse response) {
-        
+
         AuthenticationResponse authResponse = authenticationService.refreshToken(refreshToken);
         cookieUtil.createCookie(response, CookieUtil.ACCESS_TOKEN_NAME, authResponse.getAccessToken());
-        // cookieUtil.createCookie(response, CookieUtil.REFRESH_TOKEN_NAME, authResponse.getRefreshToken());
+        
+        // Clear tokens after setting cookies
+        authResponse.setAccessToken(null);
+        authResponse.setRefreshToken(null);
+        
         return ResponseEntity.ok(authResponse);
     }
 
@@ -59,14 +74,14 @@ public class AuthController {
             @CookieValue(name = CookieUtil.REFRESH_TOKEN_NAME, required = false) String refreshToken,
             HttpServletResponse response) {
 
-        // If the token exists, invalidate it in Redis/DB. If not, proceed to clear cookies.
+        // If the token exists, invalidate it in Redis/DB. If not, proceed to clear
+        // cookies.
         if (refreshToken != null) {
             authenticationService.logout(refreshToken);
         }
-        
+
         cookieUtil.clearCookie(response, CookieUtil.ACCESS_TOKEN_NAME);
         cookieUtil.clearCookie(response, CookieUtil.REFRESH_TOKEN_NAME);
         return ResponseEntity.noContent().build();
     }
 }
-
