@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -17,8 +18,10 @@ import com.sparkminds.ecommerce.enumerator.OrderStatus;
 
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long>, JpaSpecificationExecutor<Order> {
+    @EntityGraph(attributePaths = {"user"})
     public List<Order> findByUser(User user);
 
+    @EntityGraph(attributePaths = {"user"})
     @Query("SELECT o from Order o " +
             "where (:status is null or o.status = :status) " +
             "and (:minTotalAmount is null or o.totalAmount >= :minTotalAmount) " +

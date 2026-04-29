@@ -13,5 +13,4 @@ public class CategoryResponse {
     private String id;
     private String categoryName;
     private String description;
-    private Boolean isActive;
 }

@@ -25,7 +25,6 @@ import jakarta.servlet.http.HttpServletRequest;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-        // err related to database when not finding entity
         @ExceptionHandler(ResourceNotFoundException.class)
         public ResponseEntity<ErrorResponse> handleResourceNotFoundException(ResourceNotFoundException ex,
                         HttpServletRequest httpRequest) {
@@ -39,7 +38,6 @@ public class GlobalExceptionHandler {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
 
-        // err duplicated data
         @ExceptionHandler(ConflictResourceException.class)
         public ResponseEntity<ErrorResponse> handleConflictResourceException(ConflictResourceException ex,
                         HttpServletRequest httpRequest) {
@@ -53,7 +51,6 @@ public class GlobalExceptionHandler {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
         }
 
-        // err bad request from client
         @ExceptionHandler(BadRequestException.class)
         public ResponseEntity<ErrorResponse> handleBadRequestException(BadRequestException ex,
                         HttpServletRequest httpRequest) {
@@ -67,7 +64,6 @@ public class GlobalExceptionHandler {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
 
-        // err business logic
         @ExceptionHandler(BusinessException.class)
         public ResponseEntity<ErrorResponse> handleBusinessException(BusinessException ex,
                         HttpServletRequest httpRequest) {
@@ -85,13 +81,7 @@ public class GlobalExceptionHandler {
         @ExceptionHandler(MethodArgumentNotValidException.class)
         public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex,
                         HttpServletRequest httpRequest) {
-                // ex.getBindingResult() -> get the result of the validation
-                // .getFieldErrors() -> get the list of errors
-                // .stream() -> stream the list of errors
-                // .map(err -> err.getField() + ": " + err.getDefaultMessage()) -> map each
-                // error to a string
-                // .collect(Collectors.joining(", ")) -> join the strings with a comma and a
-                // space
+
                 String errorMessage = ex.getBindingResult().getFieldErrors().stream()
                                 .map(err -> err.getDefaultMessage())
                                 .collect(Collectors.joining(", "));
@@ -155,10 +145,11 @@ public class GlobalExceptionHandler {
         @ExceptionHandler({
                         ExpiredJwtException.class,
                         SignatureException.class,
-                        MalformedJwtException.class
+                        MalformedJwtException.class,
+                        IllegalArgumentException.class
         })
         public ResponseEntity<ErrorResponse> handleJwtException(Exception ex, HttpServletRequest httpServletRequest) {
-                String message = "Token is invalid or expired";
+                String message = "Invalid JWT Token";
 
                 if (ex instanceof ExpiredJwtException) {
                         message = "Token has expired, please log in again";
@@ -232,7 +223,6 @@ public class GlobalExceptionHandler {
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
         }
 
-        // err internal server error
         @ExceptionHandler(Exception.class)
         public ResponseEntity<ErrorResponse> handleException(Exception ex,
                         HttpServletRequest httpRequest) {
