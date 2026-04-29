@@ -1,7 +1,6 @@
 package com.sparkminds.ecommerce.entity;
 
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 import com.sparkminds.ecommerce.enumerator.Role;
 
@@ -26,7 +25,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @Table(name = "users")
 @Builder
-// user details extends java.io.Serializable (to serialize user object to store in session)
+// user details extends java.io.Serializable (to serialize user object to store
+// in session)
 public class User extends BaseEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

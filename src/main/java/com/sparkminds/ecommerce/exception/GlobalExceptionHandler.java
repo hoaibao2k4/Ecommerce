@@ -77,7 +77,7 @@ public class GlobalExceptionHandler {
                 return ResponseEntity.status(ex.getStatus().value()).body(errorResponse);
         }
 
-        // err validate from client
+
         @ExceptionHandler(MethodArgumentNotValidException.class)
         public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex,
                         HttpServletRequest httpRequest) {
@@ -96,13 +96,13 @@ public class GlobalExceptionHandler {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
 
-        // err malformed json request from client
+
         @ExceptionHandler(HttpMessageNotReadableException.class)
         public ResponseEntity<ErrorResponse> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex,
                         HttpServletRequest httpRequest) {
                 String message = "Malformed JSON request or data type mismatch";
 
-                // if error in float to int
+
                 if (ex.getMessage() != null && ex.getMessage().contains("Floating-point value")) {
                         message = "Data type mismatch: Integer value expected, but floating-point found.";
                 }
@@ -169,7 +169,7 @@ public class GlobalExceptionHandler {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
 
-        // bad request authen
+
         @ExceptionHandler(BadCredentialsException.class)
         public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException ex,
                         HttpServletRequest httpServletRequest) {
